@@ -2527,7 +2527,7 @@ return
 			PreciseSleep(initial_aim)
 			360Controller.Axes.RX.SetState(50)
 			;; Sleep for chest spawns
-			PreciseSleep(26000)
+			PreciseSleep(wait_for_chest_spawn)
 			;PreciseSleep(500)
 
 		;; RUN AND LOOT CHEST
