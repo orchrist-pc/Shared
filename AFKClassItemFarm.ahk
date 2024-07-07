@@ -2248,11 +2248,11 @@ return
 			arc_sleep 				= 2000
 			post_arc_sleep 			= 2400
 			fasttravel_sleep 		= 2100
-			fasttravel_wait 		= 10000
+			fasttravel_delay			= 1000
+			run_start_delay 		= 10000
 			wait_for_chest_spawn	= 26000
 			orbit_launcher_right 	= 900
 			orbit_launcher_down 	= 550
-			map_load_delay			= 1000
 			testing_mode			= 0
 
 		;; Setup for Screen resolution differences
@@ -2280,11 +2280,11 @@ return
 		iniwrite, %arc_sleep%, %settingsini%, script_settings, arc_sleep
 		iniwrite, %post_arc_sleep%, %settingsini%, script_settings, post_arc_sleep
 		iniwrite, %fasttravel_sleep%, %settingsini%, script_settings, fasttravel_sleep
-		iniwrite, %fasttravel_wait%, %settingsini%, script_settings, fasttravel_wait
+		iniwrite, %run_start_delay%, %settingsini%, script_settings, run_start_delay
 		iniwrite, %wait_for_chest_spawn%, %settingsini%, script_settings, wait_for_chest_spawn
 		iniwrite, %orbit_launcher_right%, %settingsini%, script_settings, orbit_launcher_right
 		iniwrite, %orbit_launcher_down%, %settingsini%, script_settings, orbit_launcher_down
-		iniwrite, %map_load_delay%, %settingsini%, script_settings, map_load_delay
+		iniwrite, %fasttravel_delay%, %settingsini%, script_settings, fasttravel_delay
 		iniwrite, %testing_mode%, %settingsini%, script_settings, testing_mode
 
 		gui, destroy
@@ -2296,11 +2296,11 @@ return
 		iniread, arc_sleep, %settingsini%, script_settings, arc_sleep, %A_Space%
 		iniread, post_arc_sleep, %settingsini%, script_settings, post_arc_sleep, %A_Space%
 		iniread, fasttravel_sleep, %settingsini%, script_settings, fasttravel_sleep, %A_Space%
-		iniread, fasttravel_wait, %settingsini%, script_settings, fasttravel_wait, %A_Space%
+		iniread, run_start_delay, %settingsini%, script_settings, run_start_delay, %A_Space%
 		iniread, wait_for_chest_spawn, %settingsini%, script_settings, wait_for_chest_spawn, %A_Space%
 		iniread, orbit_launcher_right, %settingsini%, script_settings, orbit_launcher_right, %A_Space%
 		iniread, orbit_launcher_down, %settingsini%, script_settings, orbit_launcher_down, %A_Space%
-		iniread, map_load_delay, %settingsini%, script_settings, map_load_delay, %A_Space%
+		iniread, fasttravel_delay, %settingsini%, script_settings, fasttravel_delay, %A_Space%
 		iniread, testing_mode, %settingsini%, script_settings, testing_mode, %A_Space%
 
 		gui, destroy
@@ -2333,7 +2333,7 @@ return
 		gui add, edit, x195 YP+0 w75 h25 vfasttravel_sleep, %fasttravel_sleep%
 
 		gui add, text, x15 YP+30 w150 h25 +0x200, Fast Travel Delay:
-		gui add, edit, x195 YP+0 w75 h25 vfasttravel_wait, %fasttravel_wait%
+		gui add, edit, x195 YP+0 w75 h25 vfasttravel_delay, %fasttravel_delay%
 
 		gui add, text, x15 YP+30 w150 h25 +0x200, Orbit Cursor Right:
 		gui add, edit, x195 YP+0 w75 h25 vorbit_launcher_right, %orbit_launcher_right%
@@ -2341,8 +2341,8 @@ return
 		gui add, text, x15 YP+30 w150 h25 +0x200, Orbit Cursor Down:
 		gui add, edit, x195 YP+0 w75 h25 vorbit_launcher_down, %orbit_launcher_down%
 
-		gui add, text, x15 YP+30 w150 h25 +0x200, Map Load Delay:
-		gui add, edit, x195 YP+0 w75 h25 vmap_load_delay, %map_load_delay%
+		gui add, text, x15 YP+30 w150 h25 +0x200, Start Delay:
+		gui add, edit, x195 YP+0 w75 h25 vrun_start_delay, %run_start_delay%
 
 		gui font, s12 bold q5 cblack, verdana
 		gui add, groupbox, x5 YP+40 w280 h180, Chest Farm Settings
@@ -2423,7 +2423,7 @@ return
 		;; Reset your instance of the Landing after 35 runs for consistency
 			if(ResetCount >= 35 || ResetCount == -1){
 				ResetCount = 0
-				if(inOrbit == 0) {						; Z - allows for launching from orbit
+				if(inOrbit == 0) {							; Only runs this if you are not already in orbit
 					360Controller.Buttons.Back.SetState(true)
 					PreciseSleep(100)
 					360Controller.Buttons.Back.SetState(false)
@@ -2431,12 +2431,12 @@ return
 					360Controller.Buttons.Y.SetState(true)
 					PreciseSleep(4000)
 					360Controller.Buttons.Y.SetState(false)
-					PreciseSleep(fasttravel_wait)
+					PreciseSleep(run_start_delay)
 				}
 				360Controller.Buttons.Back.SetState(true)
 				PreciseSleep(100)
 				360Controller.Buttons.Back.SetState(false)
-				PreciseSleep(2000)
+				PreciseSleep(3000)
 				360Controller.Axes.LY.SetState(70)			; Z- Bounce the cursor because Bungo be Bungelin
 				PreciseSleep(50)							; ↑
 				360Controller.Axes.LY.SetState(50)			; ↑
@@ -2448,7 +2448,7 @@ return
 				360Controller.Buttons.A.SetState(true)
 				PreciseSleep(100)
 				360Controller.Buttons.A.SetState(false)
-				PreciseSleep(map_load_delay)
+				PreciseSleep(fasttravel_delay)
 				360Controller.Axes.LX.SetState(0)
 				PreciseSleep(fasttravel_sleep)
 				360Controller.Axes.LX.SetState(50)
@@ -2480,7 +2480,7 @@ return
 			360Controller.Buttons.Back.SetState(true)
 			PreciseSleep(1500)
 			360Controller.Buttons.Back.SetState(false)
-			PreciseSleep(map_load_delay)
+			PreciseSleep(fasttravel_delay)
 			360Controller.Axes.LX.SetState(0)
 			PreciseSleep(fasttravel_sleep)
 			360Controller.Axes.LX.SetState(50)
@@ -2492,7 +2492,7 @@ return
 			360Controller.Buttons.A.SetState(true)
 			PreciseSleep(2000)
 			360Controller.Buttons.A.SetState(false)
-			PreciseSleep(fasttravel_wait)
+			PreciseSleep(run_start_delay)
 
 		;; FORCE CHEST SPAWN SPOT
 
