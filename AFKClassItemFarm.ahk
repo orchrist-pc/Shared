@@ -1,7 +1,7 @@
 ;####################
 ; this is a server with more macro/script shit + support: https://thrallway.com/
 ; The main function of this script was made by Orchrist
-; VERSION 1.8.0
+; VERSION 1.8.1
 ;####################
 ; Special Thanks to @antrament for:
 ;	- The framework and class files necessatry for this to work
