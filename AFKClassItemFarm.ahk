@@ -2229,8 +2229,8 @@ return
 
 ;; GUI Shit Stolen and tweaked from Antra's Movement script
 	startup:
-		settingsini := A_ScriptDir . "\AHKClassItemFarm.ini"
-		; Check if the "AHKClassItemFarm.ini" file exists.
+		settingsini := A_ScriptDir . "\AFKClassItemFarm.ini"
+		; Check if the "AFKClassItemFarm.ini" file exists.
 		if fileexist(settingsini) {
 			; If the file exists, load settings from it using a subroutine.
 			gosub, readfromini
@@ -2243,15 +2243,16 @@ return
 			}
 
 			; Default Timings
-			initial_aim 			:= 4175
-			pre_arc_sleep 			:= 4700
-			arc_sleep 				:= 2000
-			post_arc_sleep 			:= 2400
-			fasttravel_sleep 		:= 2100
-			fasttravel_wait 		:= 10000
-			wait_for_chest_spawn	:= 26000
-			orbit_launcher_right 	:= 900
-			orbit_launcher_down 	:= 550
+			initial_aim 			= 4175
+			pre_arc_sleep 			= 4700
+			arc_sleep 				= 2000
+			post_arc_sleep 			= 2400
+			fasttravel_sleep 		= 2100
+			fasttravel_wait 		= 10000
+			wait_for_chest_spawn	= 26000
+			orbit_launcher_right 	= 900
+			orbit_launcher_down 	= 550
+			map_load_delay			= 1000
 			testing_mode			= 0
 
 		;; Setup for Screen resolution differences
@@ -2267,8 +2268,8 @@ return
 			}  
 
 			reset_to_default = 0 	; reset flag
-			gosub, writetoini		; Save the default settings to "AHKClassItemFarm.ini" file.
-			gosub, readfromini		; Load settings from the "AHKClassItemFarm.ini" file.
+			gosub, writetoini		; Save the default settings to "AFKClassItemFarm.ini" file.
+			gosub, readfromini		; Load settings from the "AFKClassItemFarm.ini" file.
 			gosub, settingsgui		; Open the settings GUI.
 		}
 	return
@@ -2283,6 +2284,7 @@ return
 		iniwrite, %wait_for_chest_spawn%, %settingsini%, script_settings, wait_for_chest_spawn
 		iniwrite, %orbit_launcher_right%, %settingsini%, script_settings, orbit_launcher_right
 		iniwrite, %orbit_launcher_down%, %settingsini%, script_settings, orbit_launcher_down
+		iniwrite, %map_load_delay%, %settingsini%, script_settings, map_load_delay
 		iniwrite, %testing_mode%, %settingsini%, script_settings, testing_mode
 
 		gui, destroy
@@ -2298,6 +2300,7 @@ return
 		iniread, wait_for_chest_spawn, %settingsini%, script_settings, wait_for_chest_spawn, %A_Space%
 		iniread, orbit_launcher_right, %settingsini%, script_settings, orbit_launcher_right, %A_Space%
 		iniread, orbit_launcher_down, %settingsini%, script_settings, orbit_launcher_down, %A_Space%
+		iniread, map_load_delay, %settingsini%, script_settings, map_load_delay, %A_Space%
 		iniread, testing_mode, %settingsini%, script_settings, testing_mode, %A_Space%
 
 		gui, destroy
@@ -2315,7 +2318,7 @@ return
 
 		Gui, Menu, MyMenuBar
 
-		gui add, button, x5 y360 w280 h25 +default, save
+		gui add, button, x5 y390 w280 h25 +default, save
 		; draw save button first to ensure it is default
 
 		gui font, s10 q5 cblack, verdana
@@ -2323,7 +2326,7 @@ return
 		gui add, checkbox, x270 y5 checked%testing_mode% vtesting_mode
 
 		gui font, s12 bold q5 cblack, verdana
-		gui add, groupbox, x5 y15 w280 h150, Fast Travel Settings
+		gui add, groupbox, x5 y15 w280 h180, Fast Travel Settings
 		gui font, s11 norm q5 cblack, verdana
 
 		gui add, text, x15 y40 w150 h25 +0x200, Fast Travel Selection:
@@ -2337,6 +2340,9 @@ return
 
 		gui add, text, x15 YP+30 w150 h25 +0x200, Orbit Cursor Down:
 		gui add, edit, x195 YP+0 w75 h25 vorbit_launcher_down, %orbit_launcher_down%
+
+		gui add, text, x15 YP+30 w150 h25 +0x200, Map Load Delay:
+		gui add, edit, x195 YP+0 w75 h25 vmap_load_delay, %map_load_delay%
 
 		gui font, s12 bold q5 cblack, verdana
 		gui add, groupbox, x5 YP+40 w280 h180, Chest Farm Settings
@@ -2442,7 +2448,7 @@ return
 				360Controller.Buttons.A.SetState(true)
 				PreciseSleep(100)
 				360Controller.Buttons.A.SetState(false)
-				PreciseSleep(1000)
+				PreciseSleep(map_load_delay)
 				360Controller.Axes.LX.SetState(0)
 				PreciseSleep(fasttravel_sleep)
 				360Controller.Axes.LX.SetState(50)
@@ -2474,7 +2480,7 @@ return
 			360Controller.Buttons.Back.SetState(true)
 			PreciseSleep(1500)
 			360Controller.Buttons.Back.SetState(false)
-			PreciseSleep(1000)
+			PreciseSleep(map_load_delay)
 			360Controller.Axes.LX.SetState(0)
 			PreciseSleep(fasttravel_sleep)
 			360Controller.Axes.LX.SetState(50)
