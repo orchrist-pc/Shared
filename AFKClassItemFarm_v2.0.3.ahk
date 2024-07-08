@@ -2234,9 +2234,9 @@ return
 		if fileexist(settingsini) {
 			; If the file exists, load settings from it using a subroutine.
 			gosub, readfromini
-			if(cleanupoldshit1 != 1){
+			if(cleanupoldshit203 != 1){
 				reset_to_default = 1
-				msgbox, !! Welcome to Version 2.0.3 !!`n`nSince this is your first time running the new version we are resetting you to the default settings.`n`nPlease remember to revert any previous settings to their old values!
+				msgbox, !! Welcome to Version %version% !!`n`nSince this is your first time running the new version we are resetting you to the default settings.`n`nPlease remember to revert any previous settings to their old values!
 				FileDelete, %settingsini%
 				gosub, inisetup
 			}
@@ -2256,13 +2256,14 @@ return
 		}
 
 		; Default Timings
-		pavilion_run_time		= 7300
+		pavilion_run_time		= 7800
 		initial_aim 			= 3900
 		pre_turn_duration 		= 4700
 		turn_duration 			= 1800
 		post_turn_duration 		= 2800
 		run_into_chest_duration = 1800
-		chest_turn_duration		= 600
+		chest_turn_duration		= 550
+		from_orbit_delay		= 30000
 		fasttravel_sleep 		= 2100
 		fasttravel_delay		= 2000
 		run_start_delay 		= 10000
@@ -2271,7 +2272,7 @@ return
 		orbit_launcher_down 	= 550
 		testing_mode			= 0
 		beta_mode				= 0
-		cleanupoldshit1			= 1
+		cleanupoldshit203		= 1
 
 	;; Setup for Screen resolution differences
 		WinGetPos, , , D2Width, D2Height, Destiny 2
@@ -2299,6 +2300,7 @@ return
 		iniwrite, %post_turn_duration%, %settingsini%, script_settings, post_turn_duration
 		iniwrite, %run_into_chest_duration%, %settingsini%, script_settings, run_into_chest_duration
 		iniwrite, %chest_turn_duration%, %settingsini%, script_settings, chest_turn_duration
+		iniwrite, %from_orbit_delay%, %settingsini%, script_settings, from_orbit_delay
 		iniwrite, %fasttravel_sleep%, %settingsini%, script_settings, fasttravel_sleep
 		iniwrite, %run_start_delay%, %settingsini%, script_settings, run_start_delay
 		iniwrite, %wait_for_chest_spawn%, %settingsini%, script_settings, wait_for_chest_spawn
@@ -2307,7 +2309,7 @@ return
 		iniwrite, %fasttravel_delay%, %settingsini%, script_settings, fasttravel_delay
 		iniwrite, %testing_mode%, %settingsini%, script_settings, testing_mode
 		iniwrite, %beta_mode%, %settingsini%, script_settings, beta_mode
-		iniwrite, %cleanupoldshit1%, %settingsini%, script_settings, cleanupoldshit1
+		iniwrite, %cleanupoldshit203%, %settingsini%, script_settings, cleanupoldshit203
 
 		gui, destroy
 	return
@@ -2320,6 +2322,7 @@ return
 		iniread, post_turn_duration, %settingsini%, script_settings, post_turn_duration, %A_Space%
 		iniread, run_into_chest_duration, %settingsini%, script_settings, run_into_chest_duration, %A_Space%
 		iniread, chest_turn_duration, %settingsini%, script_settings, chest_turn_duration, %A_Space%
+		iniread, from_orbit_delay, %settingsini%, script_settings, from_orbit_delay, %A_Space%
 		iniread, fasttravel_sleep, %settingsini%, script_settings, fasttravel_sleep, %A_Space%
 		iniread, run_start_delay, %settingsini%, script_settings, run_start_delay, %A_Space%
 		iniread, wait_for_chest_spawn, %settingsini%, script_settings, wait_for_chest_spawn, %A_Space%
@@ -2328,7 +2331,7 @@ return
 		iniread, fasttravel_delay, %settingsini%, script_settings, fasttravel_delay, %A_Space%
 		iniread, testing_mode, %settingsini%, script_settings, testing_mode, %A_Space%
 		iniread, beta_mode, %settingsini%, script_settings, beta_mode, %A_Space%
-		iniread, cleanupoldshit1, %settingsini%, script_settings, cleanupoldshit1, %A_Space%
+		iniread, cleanupoldshit203, %settingsini%, script_settings, cleanupoldshit203, %A_Space%
 
 		gui, destroy
 	return
@@ -2345,7 +2348,7 @@ return
 
 		Gui, Menu, MyMenuBar
 
-		gui add, button, x5 y475 w280 h25 +default, save
+		gui add, button, x5 y505 w280 h25 +default, save
 		; draw save button first to ensure it is default
 
 		gui font, s10 q5 cblack, verdana
@@ -2353,10 +2356,13 @@ return
 		gui add, checkbox, x270 y5 checked%testing_mode% vtesting_mode
 
 		gui font, s12 bold q5 cblack, verdana
-		gui add, groupbox, x5 y15 w280 h180, Fast Travel Settings
+		gui add, groupbox, x5 y15 w280 h210, Fast Travel Settings
 		gui font, s11 norm q5 cblack, verdana
 
-		gui add, text, x15 YP+25 w160 h25 +0x200, Fast Travel Selection:
+		gui add, text, x15 YP+25 w160 h25 +0x200, New Instance Wait:
+		gui add, edit, x195 YP+0 w80 h25 vfrom_orbit_delay, %from_orbit_delay%
+
+		gui add, text, x15 YP+30 w160 h25 +0x200, Fast Travel Selection:
 		gui add, edit, x195 YP+0 w80 h25 vfasttravel_sleep, %fasttravel_sleep%
 
 		gui add, text, x15 YP+30 w160 h25 +0x200, Fast Travel Delay:
@@ -2467,14 +2473,14 @@ return
 				360Controller.Buttons.Back.SetState(false)
 				PreciseSleep(1000)
 				360Controller.Buttons.Y.SetState(true)
-				PreciseSleep(fasttravel_delay)
+				PreciseSleep(4000)
 				360Controller.Buttons.Y.SetState(false)
 				PreciseSleep(run_start_delay)
 			}
 			360Controller.Buttons.Back.SetState(true)
 			PreciseSleep(100)
 			360Controller.Buttons.Back.SetState(false)
-			PreciseSleep(5000)
+			PreciseSleep(fasttravel_delay)
 			360Controller.Axes.LY.SetState(70)			; Z- Bounce the cursor because Bungo be Bungelin
 			PreciseSleep(100)							; ↑
 			360Controller.Axes.LY.SetState(50)			; ↑
@@ -2510,7 +2516,7 @@ return
 			360Controller.Buttons.A.SetState(true)
 			PreciseSleep(100)
 			360Controller.Buttons.A.SetState(false)
-			PreciseSleep(45000)
+			PreciseSleep(from_orbit_delay)
 			inOrbit = 0								; Resets the inOrbit
 		}
 
@@ -2644,5 +2650,5 @@ F9::
 return
 
 F10::
-	ResetCount = 34
+	ResetCount = 39
 Return
