@@ -2263,7 +2263,7 @@ return
 		post_turn_duration 		= 2800
 		run_into_chest_duration = 1800
 		fasttravel_sleep 		= 2100
-		fasttravel_delay		= 1000
+		fasttravel_delay		= 2000
 		run_start_delay 		= 10000
 		wait_for_chest_spawn	= 22000
 		orbit_launcher_right 	= 900
@@ -2470,11 +2470,11 @@ return
 			360Controller.Buttons.Back.SetState(false)
 			PreciseSleep(3000)
 			360Controller.Axes.LY.SetState(70)			; Z- Bounce the cursor because Bungo be Bungelin
-			PreciseSleep(50)							; ↑
+			PreciseSleep(100)							; ↑
 			360Controller.Axes.LY.SetState(50)			; ↑
-			PreciseSleep(50)							; ↑
+			PreciseSleep(100)							; ↑
 			360Controller.Axes.LY.SetState(30)			; ↑
-			PreciseSleep(50)							; ↑
+			PreciseSleep(100)							; ↑
 			360Controller.Axes.LY.SetState(50)			; ↑
 			PreciseSleep(600)
 			360Controller.Buttons.A.SetState(true)
@@ -2582,7 +2582,7 @@ return
 		360Controller.Axes.RX.SetState(0)
 		PreciseSleep(700)
 		360Controller.Axes.RX.SetState(50)
-		PreciseSleep(50)
+		PreciseSleep(100)
 		;; Run into chest
 		360Controller.Buttons.LS.SetState(True)
 		PreciseSleep(100)
@@ -2595,7 +2595,7 @@ return
 		360Controller.Axes.RX.SetState(0)
 		PreciseSleep(600)
 		360Controller.Axes.RX.SetState(50)
-		PreciseSleep(50)
+		PreciseSleep(100)
 		360Controller.Axes.RY.SetState(5)
 		PreciseSleep(700)
 		360Controller.Axes.RY.SetState(50)
