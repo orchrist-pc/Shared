@@ -2321,7 +2321,7 @@ return
 
 		Gui, Menu, MyMenuBar
 
-		gui add, button, x5 y395 w280 h25 +default, Save Settings
+		gui add, button, x5 y395 w280 h25 +default, save
 		; draw save button first to ensure it is default
 
 		gui font, s10 q5 cblack, verdana
@@ -2567,11 +2567,10 @@ return
 	Return
 
 	Beta_Farm:
-	Loop {
-	;; START
-		if(testing_mode && ResetCount == -1){
-			ResetCount = 0
-		}
+		Loop {
+			if(testing_mode && ResetCount == -1){
+				ResetCount = 0
+			}
 	;; Reset your instance of the Landing after 35 runs for consistency
 		if(ResetCount >= 35 || ResetCount == -1){
 			ResetCount = 0
