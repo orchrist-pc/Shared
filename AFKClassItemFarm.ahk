@@ -2453,7 +2453,7 @@ return
 				ResetCount = 0
 			}
 	;; Reset your instance of the Landing after 35 runs for consistency
-		if(ResetCount >= 35 || ResetCount == -1){
+		if(ResetCount >= 40 || ResetCount == -1){
 			ResetCount = 0
 			if(inOrbit == 0) {							; Only runs this if you are not already in orbit
 				360Controller.Buttons.Back.SetState(true)
