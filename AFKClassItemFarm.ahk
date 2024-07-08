@@ -2248,12 +2248,13 @@ return
 			arc_sleep 				= 2000
 			post_arc_sleep 			= 2400
 			fasttravel_sleep 		= 2100
-			fasttravel_delay			= 1000
+			fasttravel_delay		= 1000
 			run_start_delay 		= 10000
 			wait_for_chest_spawn	= 26000
 			orbit_launcher_right 	= 900
 			orbit_launcher_down 	= 550
 			testing_mode			= 0
+			beta_mode				= 0
 
 		;; Setup for Screen resolution differences
 			WinGetPos, , , D2Width, D2Height, Destiny 2
@@ -2286,6 +2287,7 @@ return
 		iniwrite, %orbit_launcher_down%, %settingsini%, script_settings, orbit_launcher_down
 		iniwrite, %fasttravel_delay%, %settingsini%, script_settings, fasttravel_delay
 		iniwrite, %testing_mode%, %settingsini%, script_settings, testing_mode
+		iniwrite, %beta_mode%, %settingsini%, script_settings, beta_mode
 
 		gui, destroy
 	return
@@ -2302,6 +2304,7 @@ return
 		iniread, orbit_launcher_down, %settingsini%, script_settings, orbit_launcher_down, %A_Space%
 		iniread, fasttravel_delay, %settingsini%, script_settings, fasttravel_delay, %A_Space%
 		iniread, testing_mode, %settingsini%, script_settings, testing_mode, %A_Space%
+		iniread, beta_mode, %settingsini%, script_settings, beta_mode, %A_Space%
 
 		gui, destroy
 	return
@@ -2318,18 +2321,20 @@ return
 
 		Gui, Menu, MyMenuBar
 
-		gui add, button, x5 y390 w280 h25 +default, save
+		gui add, button, x5 y395 w280 h25 +default, Save Settings
 		; draw save button first to ensure it is default
 
 		gui font, s10 q5 cblack, verdana
 		gui add, text, x190 y5, Test Mode:
+		gui add, text, x5 y5, Beta:
 		gui add, checkbox, x270 y5 checked%testing_mode% vtesting_mode
+		gui add, checkbox, x45 y5 checked%testing_mode% vbeta_mode
 
 		gui font, s12 bold q5 cblack, verdana
-		gui add, groupbox, x5 y15 w280 h180, Fast Travel Settings
+		gui add, groupbox, x5 y25 w280 h180, Fast Travel Settings
 		gui font, s11 norm q5 cblack, verdana
 
-		gui add, text, x15 y40 w150 h25 +0x200, Fast Travel Selection:
+		gui add, text, x15 YP+25 w150 h25 +0x200, Fast Travel Selection:
 		gui add, edit, x195 YP+0 w75 h25 vfasttravel_sleep, %fasttravel_sleep%
 
 		gui add, text, x15 YP+30 w150 h25 +0x200, Fast Travel Delay:
@@ -2417,9 +2422,9 @@ return
 	Start_Farm:
 		Loop {
 		;; START
-		if(testing_mode && ResetCount == -1){
-			ResetCount = 0
-		}
+			if(testing_mode && ResetCount == -1){
+				ResetCount = 0
+			}
 		;; Reset your instance of the Landing after 35 runs for consistency
 			if(ResetCount >= 35 || ResetCount == -1){
 				ResetCount = 0
@@ -2561,6 +2566,168 @@ return
 		}
 	Return
 
+	Beta_Farm:
+	Loop {
+	;; START
+		if(testing_mode && ResetCount == -1){
+			ResetCount = 0
+		}
+	;; Reset your instance of the Landing after 35 runs for consistency
+		if(ResetCount >= 35 || ResetCount == -1){
+			ResetCount = 0
+			if(inOrbit == 0) {							; Only runs this if you are not already in orbit
+				360Controller.Buttons.Back.SetState(true)
+				PreciseSleep(100)
+				360Controller.Buttons.Back.SetState(false)
+				PreciseSleep(1000)
+				360Controller.Buttons.Y.SetState(true)
+				PreciseSleep(4000)
+				360Controller.Buttons.Y.SetState(false)
+				PreciseSleep(run_start_delay)
+			}
+			360Controller.Buttons.Back.SetState(true)
+			PreciseSleep(100)
+			360Controller.Buttons.Back.SetState(false)
+			PreciseSleep(3000)
+			360Controller.Axes.LY.SetState(70)			; Z- Bounce the cursor because Bungo be Bungelin
+			PreciseSleep(50)							; ↑
+			360Controller.Axes.LY.SetState(50)			; ↑
+			PreciseSleep(50)							; ↑
+			360Controller.Axes.LY.SetState(30)			; ↑
+			PreciseSleep(50)							; ↑
+			360Controller.Axes.LY.SetState(50)			; ↑
+			PreciseSleep(600)
+			360Controller.Buttons.A.SetState(true)
+			PreciseSleep(100)
+			360Controller.Buttons.A.SetState(false)
+			PreciseSleep(fasttravel_delay)
+			360Controller.Axes.LX.SetState(0)
+			PreciseSleep(fasttravel_sleep)
+			360Controller.Axes.LX.SetState(50)
+			PreciseSleep(500)
+			360Controller.Axes.LY.SetState(30)			; Z- bumps down the map cursor because its a little high for the LZ node sometimes
+			PreciseSleep(100)							; ↑
+			360Controller.Axes.LY.SetState(50)			; ↑
+			PreciseSleep(200)
+			360Controller.Buttons.A.SetState(true)
+			PreciseSleep(2000)
+			360Controller.Buttons.A.SetState(false)
+			PreciseSleep(1000)
+			360Controller.Axes.LX.SetState(100)
+			PreciseSleep(orbit_launcher_right)
+			360Controller.Axes.LX.SetState(50)
+			PreciseSleep(500)
+			360Controller.Axes.LY.SetState(0)
+			PreciseSleep(orbit_launcher_down)
+			360Controller.Axes.LY.SetState(50)
+			PreciseSleep(100)
+			360Controller.Buttons.A.SetState(true)
+			PreciseSleep(100)
+			360Controller.Buttons.A.SetState(false)
+			PreciseSleep(45000)
+			inOrbit = 0								; Resets the inOrbit
+		}
+
+	;; Fast Travel to the Landing, yes even after loading a fresh instance, this is for consistent reticle placement
+		360Controller.Buttons.Back.SetState(true)
+		PreciseSleep(1500)
+		360Controller.Buttons.Back.SetState(false)
+		PreciseSleep(fasttravel_delay)
+		360Controller.Axes.LX.SetState(0)
+		PreciseSleep(fasttravel_sleep)
+		360Controller.Axes.LX.SetState(50)
+		PreciseSleep(300)
+		360Controller.Axes.LY.SetState(30)			; Z- bumps down the map cursor because its a little high for the LZ node sometimes
+		PreciseSleep(100)							; ↑
+		360Controller.Axes.LY.SetState(50)			; ↑
+		PreciseSleep(200)
+		360Controller.Buttons.A.SetState(true)
+		PreciseSleep(2000)
+		360Controller.Buttons.A.SetState(false)
+		PreciseSleep(run_start_delay)
+
+	;; FORCE CHEST SPAWN SPOT
+		;; Walk forward to avoid the shitty rock
+		360Controller.Axes.RX.SetState(20)
+		PreciseSleep(1000)
+		360Controller.Axes.RX.SetState(50)
+		PreciseSleep(200)
+		;; Move forward to the force spawn location
+		360Controller.Buttons.LS.SetState(True)
+		PreciseSleep(100)
+		360Controller.Axes.LY.SetState(100)
+		PreciseSleep(7300)
+		360Controller.Axes.LY.SetState(50)
+		360Controller.Buttons.LS.SetState(False)
+		PreciseSleep(200)
+		360Controller.Axes.RX.SetState(80)
+		PreciseSleep(3900)
+		360Controller.Axes.RX.SetState(50)
+		PreciseSleep(500)
+		360Controller.Buttons.LS.SetState(True)
+		PreciseSleep(100)
+		360Controller.Axes.LY.SetState(100)
+		PreciseSleep(1000)
+		360Controller.Axes.LY.SetState(50)
+		360Controller.Buttons.LS.SetState(False)
+		PreciseSleep(wait_for_chest_spawn)
+
+		360Controller.Axes.LX.SetState(80)
+		PreciseSleep(500)
+		360Controller.Axes.LX.SetState(50)
+		PreciseSleep(100)
+
+		360Controller.Axes.Rx.SetState(80)
+		PreciseSleep(400)
+		360Controller.Axes.Rx.SetState(50)
+
+	;; RUN AND LOOT CHEST
+		;; Run forward
+		360Controller.Axes.LY.SetState(100)
+		360Controller.Buttons.LS.SetState(true)
+		PreciseSleep(100)
+		360Controller.Buttons.LS.SetState(False)
+		PreciseSleep(pre_arc_sleep)
+		;; Start arcing towards the left
+		360Controller.Axes.RX.SetState(15)
+		PreciseSleep(1800)
+		;; Stop arc
+		360Controller.Axes.RX.SetState(50)
+		PreciseSleep(2800)
+		;; Stop running
+		360Controller.Axes.LY.SetState(50)
+		;; Aim Down
+
+		360Controller.Axes.RX.SetState(0)
+		PreciseSleep(700)
+		360Controller.Axes.RX.SetState(50)
+		PreciseSleep(50)
+		360Controller.Buttons.LS.SetState(True)
+		PreciseSleep(100)
+		360Controller.Axes.LY.SetState(100)
+		PreciseSleep(1200)
+		360Controller.Axes.LY.SetState(50)
+		360Controller.Buttons.LS.SetState(False)
+
+		360Controller.Axes.RX.SetState(0)
+		PreciseSleep(600)
+		360Controller.Axes.RX.SetState(50)
+		PreciseSleep(50)
+		360Controller.Axes.RY.SetState(5)
+		PreciseSleep(700)
+		360Controller.Axes.RY.SetState(50)
+		PreciseSleep(100)
+		;; Loot Chest
+		360Controller.Buttons.X.SetState(true)
+		PreciseSleep(2000)
+		360Controller.Buttons.X.SetState(false)
+		PreciseSleep(1000)
+
+		ResetCount++
+		Count++
+	}
+Return
+
 F3::
 	status = 1
 	ResetCount = -1
@@ -2572,7 +2739,19 @@ F4::
 	status = 1
 	ResetCount = -1
 	inOrbit = 0
-	gosub, Start_Farm
+	if(beta_mode){
+		MsgBox,4,Exotic Class Farm Script,!!!WARNING!!!`n`nYou have selected Beta Mode for this script. This is experimental and is not guaranteed to work for you. None of the variables here are programmed into the settings.`n`nContinue Anyway?
+		IfMsgBox, Yes
+		{
+			gosub, Beta_Farm
+		}
+		else{
+			gosub, Start_Farm
+		}
+	}
+	else{
+		gosub, Start_Farm
+	}
 Return
 
 F5::Reload
