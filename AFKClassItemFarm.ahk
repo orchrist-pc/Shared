@@ -1,7 +1,7 @@
 ;####################
 ; this is a server with more macro/script shit + support: https://thrallway.com/
 ; The main function of this script was made by Orchrist
-; VERSION 1.8.1
+; VERSION 2.0
 ;####################
 ; Special Thanks to @antrament for:
 ;	- The framework and class files necessatry for this to work
@@ -2234,52 +2234,69 @@ return
 		if fileexist(settingsini) {
 			; If the file exists, load settings from it using a subroutine.
 			gosub, readfromini
-			WinActivate, Destiny 2
+			if(cleanupoldshit != 1){
+				reset_to_default = 1
+				msgbox, !! Welcome to Version 2.0 !!`n`nSince this is your first time running the new version we are resetting you to the default settings.`n`nPlease remember to revert any previous settings to their old values!
+				FileDelete, %settingsini%
+				gosub, inisetup
+			}
+			else{
+				WinActivate, Destiny 2
+			}
 		}
 		else {
-			; If the file doesn't exist, set default values for the settings.
-			if(reset_to_default == 0){
-				msgbox, Existing ini file was not found. Saving default settings file to %settingsini%.
-			}
-
-			; Default Timings
-			initial_aim 			= 4175
-			pre_arc_sleep 			= 4700
-			arc_sleep 				= 2000
-			post_arc_sleep 			= 2400
-			fasttravel_sleep 		= 2100
-			fasttravel_delay		= 1000
-			run_start_delay 		= 10000
-			wait_for_chest_spawn	= 26000
-			orbit_launcher_right 	= 900
-			orbit_launcher_down 	= 550
-			testing_mode			= 0
-			beta_mode				= 0
-
-		;; Setup for Screen resolution differences
-			WinGetPos, , , D2Width, D2Height, Destiny 2
-			;; 43:18 resolution ratio (3440x1440)
-			if ((D2Width/D2Height) == (43/18)) {
-				fasttravel_sleep := 1525
-			}
-			;; 21:9 resolution ratio
-			if ((D2Width/D2Height) == (21/9)) {
-				orbit_launcher_right := 1000
-				orbit_launcher_right := 400
-			}  
-
-			reset_to_default = 0 	; reset flag
-			gosub, writetoini		; Save the default settings to "AFKClassItemFarm.ini" file.
-			gosub, readfromini		; Load settings from the "AFKClassItemFarm.ini" file.
-			gosub, settingsgui		; Open the settings GUI.
+			gosub, inisetup
 		}
 	return
 
+	inisetup:
+		; If the file doesn't exist, set default values for the settings.
+		if(reset_to_default == 0){
+			msgbox, Existing ini file was not found. Saving default settings file to %settingsini%.
+		}
+
+		; Default Timings
+		pavilion_run_time		= 7300
+		initial_aim 			= 3900
+		pre_turn_duration 		= 4700
+		turn_duration 			= 1800
+		post_turn_duration 		= 2800
+		run_into_chest_duration = 1800
+		fasttravel_sleep 		= 2100
+		fasttravel_delay		= 1000
+		run_start_delay 		= 10000
+		wait_for_chest_spawn	= 22000
+		orbit_launcher_right 	= 900
+		orbit_launcher_down 	= 550
+		testing_mode			= 0
+		beta_mode				= 0
+		cleanupoldshit			= 1
+
+	;; Setup for Screen resolution differences
+		WinGetPos, , , D2Width, D2Height, Destiny 2
+		;; 43:18 resolution ratio (3440x1440)
+		if ((D2Width/D2Height) == (43/18)) {
+			fasttravel_sleep := 1525
+		}
+		;; 21:9 resolution ratio
+		if ((D2Width/D2Height) == (21/9)) {
+			orbit_launcher_right := 1000
+			orbit_launcher_right := 400
+		}  
+
+		reset_to_default = 0 	; reset flag
+		gosub, writetoini		; Save the default settings to "AFKClassItemFarm.ini" file.
+		gosub, readfromini		; Load settings from the "AFKClassItemFarm.ini" file.
+		gosub, settingsgui		; Open the settings GUI.
+	return
+
 	writetoini:
+		iniwrite, %pavilion_run_time%, %settingsini%, script_settings, pavilion_run_time
 		iniwrite, %initial_aim%, %settingsini%, script_settings, initial_aim
-		iniwrite, %pre_arc_sleep%, %settingsini%, script_settings, pre_arc_sleep
-		iniwrite, %arc_sleep%, %settingsini%, script_settings, arc_sleep
-		iniwrite, %post_arc_sleep%, %settingsini%, script_settings, post_arc_sleep
+		iniwrite, %pre_turn_duration%, %settingsini%, script_settings, pre_turn_duration
+		iniwrite, %turn_duration%, %settingsini%, script_settings, turn_duration
+		iniwrite, %post_turn_duration%, %settingsini%, script_settings, post_turn_duration
+		iniwrite, %run_into_chest_duration%, %settingsini%, script_settings, run_into_chest_duration
 		iniwrite, %fasttravel_sleep%, %settingsini%, script_settings, fasttravel_sleep
 		iniwrite, %run_start_delay%, %settingsini%, script_settings, run_start_delay
 		iniwrite, %wait_for_chest_spawn%, %settingsini%, script_settings, wait_for_chest_spawn
@@ -2288,15 +2305,18 @@ return
 		iniwrite, %fasttravel_delay%, %settingsini%, script_settings, fasttravel_delay
 		iniwrite, %testing_mode%, %settingsini%, script_settings, testing_mode
 		iniwrite, %beta_mode%, %settingsini%, script_settings, beta_mode
+		iniwrite, %cleanupoldshit%, %settingsini%, script_settings, cleanupoldshit
 
 		gui, destroy
 	return
 
 	readfromini:
+		iniread, pavilion_run_time, %settingsini%, script_settings, pavilion_run_time, %A_Space%
 		iniread, initial_aim, %settingsini%, script_settings, initial_aim, %A_Space%
-		iniread, pre_arc_sleep, %settingsini%, script_settings, pre_arc_sleep, %A_Space%
-		iniread, arc_sleep, %settingsini%, script_settings, arc_sleep, %A_Space%
-		iniread, post_arc_sleep, %settingsini%, script_settings, post_arc_sleep, %A_Space%
+		iniread, pre_turn_duration, %settingsini%, script_settings, pre_turn_duration, %A_Space%
+		iniread, turn_duration, %settingsini%, script_settings, turn_duration, %A_Space%
+		iniread, post_turn_duration, %settingsini%, script_settings, post_turn_duration, %A_Space%
+		iniread, run_into_chest_duration, %settingsini%, script_settings, run_into_chest_duration, %A_Space%
 		iniread, fasttravel_sleep, %settingsini%, script_settings, fasttravel_sleep, %A_Space%
 		iniread, run_start_delay, %settingsini%, script_settings, run_start_delay, %A_Space%
 		iniread, wait_for_chest_spawn, %settingsini%, script_settings, wait_for_chest_spawn, %A_Space%
@@ -2305,6 +2325,7 @@ return
 		iniread, fasttravel_delay, %settingsini%, script_settings, fasttravel_delay, %A_Space%
 		iniread, testing_mode, %settingsini%, script_settings, testing_mode, %A_Space%
 		iniread, beta_mode, %settingsini%, script_settings, beta_mode, %A_Space%
+		iniread, cleanupoldshit, %settingsini%, script_settings, cleanupoldshit, %A_Space%
 
 		gui, destroy
 	return
@@ -2321,52 +2342,57 @@ return
 
 		Gui, Menu, MyMenuBar
 
-		gui add, button, x5 y395 w280 h25 +default, save
+		gui add, button, x5 y445 w280 h25 +default, save
 		; draw save button first to ensure it is default
 
 		gui font, s10 q5 cblack, verdana
 		gui add, text, x190 y5, Test Mode:
-		gui add, text, x5 y5, Beta:
 		gui add, checkbox, x270 y5 checked%testing_mode% vtesting_mode
-		gui add, checkbox, x45 y5 checked%testing_mode% vbeta_mode
 
 		gui font, s12 bold q5 cblack, verdana
-		gui add, groupbox, x5 y25 w280 h180, Fast Travel Settings
+		gui add, groupbox, x5 y15 w280 h180, Fast Travel Settings
 		gui font, s11 norm q5 cblack, verdana
 
-		gui add, text, x15 YP+25 w150 h25 +0x200, Fast Travel Selection:
-		gui add, edit, x195 YP+0 w75 h25 vfasttravel_sleep, %fasttravel_sleep%
+		gui add, text, x15 YP+25 w160 h25 +0x200, Fast Travel Selection:
+		gui add, edit, x195 YP+0 w80 h25 vfasttravel_sleep, %fasttravel_sleep%
 
-		gui add, text, x15 YP+30 w150 h25 +0x200, Fast Travel Delay:
-		gui add, edit, x195 YP+0 w75 h25 vfasttravel_delay, %fasttravel_delay%
+		gui add, text, x15 YP+30 w160 h25 +0x200, Fast Travel Delay:
+		gui add, edit, x195 YP+0 w80 h25 vfasttravel_delay, %fasttravel_delay%
 
-		gui add, text, x15 YP+30 w150 h25 +0x200, Orbit Cursor Right:
-		gui add, edit, x195 YP+0 w75 h25 vorbit_launcher_right, %orbit_launcher_right%
+		gui add, text, x15 YP+30 w160 h25 +0x200, Orbit Cursor Right:
+		gui add, edit, x195 YP+0 w80 h25 vorbit_launcher_right, %orbit_launcher_right%
 
-		gui add, text, x15 YP+30 w150 h25 +0x200, Orbit Cursor Down:
-		gui add, edit, x195 YP+0 w75 h25 vorbit_launcher_down, %orbit_launcher_down%
+		gui add, text, x15 YP+30 w160 h25 +0x200, Orbit Cursor Down:
+		gui add, edit, x195 YP+0 w80 h25 vorbit_launcher_down, %orbit_launcher_down%
 
-		gui add, text, x15 YP+30 w150 h25 +0x200, Start Delay:
-		gui add, edit, x195 YP+0 w75 h25 vrun_start_delay, %run_start_delay%
+		gui add, text, x15 YP+30 w160 h25 +0x200, Start Delay:
+		gui add, edit, x195 YP+0 w80 h25 vrun_start_delay, %run_start_delay%
 
+		;; Pathing Settings
 		gui font, s12 bold q5 cblack, verdana
-		gui add, groupbox, x5 YP+40 w280 h180, Chest Farm Settings
+		gui add, groupbox, x5 YP+40 w280 h240, Chest Pathing Settings
 		gui font, s11 norm q5 cblack, verdana
 
-		gui add, text, x15 YP+25 w150 h25 +0x200, Initial Aim:
-		gui add, edit, x195 YP+0 w75 h25 vinitial_aim, %initial_aim%
+		gui add, text, x15 YP+25 w160 h25 +0x200, Pavilion Run Time:
+		gui add, edit, x195 YP+0 w80 h25 vpavilion_run_time, %pavilion_run_time%
 
-		gui add, text, x15 YP+30 w150 h25 +0x200, Pre-Turn Duration:
-		gui add, edit, x195 YP+0 w75 h25 vpre_arc_sleep, %pre_arc_sleep%
+		gui add, text, x15 YP+30 w160 h25 +0x200, Initial Aim:
+		gui add, edit, x195 YP+0 w80 h25 vinitial_aim, %initial_aim%
 
-		gui add, text, x15 YP+30 w150 h25 +0x200, Turn Duration:
-		gui add, edit, x195 YP+0 w75 h25 varc_sleep, %arc_sleep%
+		gui add, text, x15 YP+30 w160 h25 +0x200, Pre-Turn Duration:
+		gui add, edit, x195 YP+0 w80 h25 vpre_turn_duration, %pre_turn_duration%
 
-		gui add, text, x15 YP+30 w150 h25 +0x200, Post-Turn Duration:
-		gui add, edit, x195 YP+0 w75 h25 vpost_arc_sleep, %post_arc_sleep%
+		gui add, text, x15 YP+30 w160 h25 +0x200, Turn Duration:
+		gui add, edit, x195 YP+0 w80 h25 vturn_duration, %turn_duration%
 
-		gui add, text, x15 YP+30 w150 h25 +0x200, Chest Spawn Delay:
-		gui add, edit, x195 YP+0 w75 h25 vwait_for_chest_spawn, %wait_for_chest_spawn%
+		gui add, text, x15 YP+30 w160 h25 +0x200, Post-Turn Duration:
+		gui add, edit, x195 YP+0 w80 h25 vpost_turn_duration, %post_turn_duration%
+
+		gui add, text, x15 YP+30 w160 h25 +0x200, Chest Run Duration:
+		gui add, edit, x195 YP+0 w80 h25 vrun_into_chest_duration, %run_into_chest_duration%
+
+		gui add, text, x15 YP+30 w160 h25 +0x200, Chest Spawn Delay:
+		gui add, edit, x195 YP+0 w80 h25 vwait_for_chest_spawn, %wait_for_chest_spawn%
 
 		gui show, w290, AFK Exotic Settings
 	return
@@ -2380,12 +2406,14 @@ return
 		gosub, writetoini
 		gui, destroy
 		reload
+		WinActivate, Destiny 2
 	return
 
 	guiclose:
 		gui, submit
 		gosub, writetoini
 		gui, destroy
+		WinActivate, Destiny 2
 	return
 
 	defaultsettings:
@@ -2420,153 +2448,6 @@ return
 	return
 ;; Start Farm Script stuff
 	Start_Farm:
-		Loop {
-		;; START
-			if(testing_mode && ResetCount == -1){
-				ResetCount = 0
-			}
-		;; Reset your instance of the Landing after 35 runs for consistency
-			if(ResetCount >= 35 || ResetCount == -1){
-				ResetCount = 0
-				if(inOrbit == 0) {							; Only runs this if you are not already in orbit
-					360Controller.Buttons.Back.SetState(true)
-					PreciseSleep(100)
-					360Controller.Buttons.Back.SetState(false)
-					PreciseSleep(1000)
-					360Controller.Buttons.Y.SetState(true)
-					PreciseSleep(4000)
-					360Controller.Buttons.Y.SetState(false)
-					PreciseSleep(run_start_delay)
-				}
-				360Controller.Buttons.Back.SetState(true)
-				PreciseSleep(100)
-				360Controller.Buttons.Back.SetState(false)
-				PreciseSleep(3000)
-				360Controller.Axes.LY.SetState(70)			; Z- Bounce the cursor because Bungo be Bungelin
-				PreciseSleep(50)							; ↑
-				360Controller.Axes.LY.SetState(50)			; ↑
-				PreciseSleep(50)							; ↑
-				360Controller.Axes.LY.SetState(30)			; ↑
-				PreciseSleep(50)							; ↑
-				360Controller.Axes.LY.SetState(50)			; ↑
-				PreciseSleep(600)
-				360Controller.Buttons.A.SetState(true)
-				PreciseSleep(100)
-				360Controller.Buttons.A.SetState(false)
-				PreciseSleep(fasttravel_delay)
-				360Controller.Axes.LX.SetState(0)
-				PreciseSleep(fasttravel_sleep)
-				360Controller.Axes.LX.SetState(50)
-				PreciseSleep(500)
-				360Controller.Axes.LY.SetState(30)			; Z- bumps down the map cursor because its a little high for the LZ node sometimes
-				PreciseSleep(100)							; ↑
-				360Controller.Axes.LY.SetState(50)			; ↑
-				PreciseSleep(200)
-				360Controller.Buttons.A.SetState(true)
-				PreciseSleep(2000)
-				360Controller.Buttons.A.SetState(false)
-				PreciseSleep(1000)
-				360Controller.Axes.LX.SetState(100)
-				PreciseSleep(orbit_launcher_right)
-				360Controller.Axes.LX.SetState(50)
-				PreciseSleep(500)
-				360Controller.Axes.LY.SetState(0)
-				PreciseSleep(orbit_launcher_down)
-				360Controller.Axes.LY.SetState(50)
-				PreciseSleep(100)
-				360Controller.Buttons.A.SetState(true)
-				PreciseSleep(100)
-				360Controller.Buttons.A.SetState(false)
-				PreciseSleep(45000)
-				inOrbit = 0								; Resets the inOrbit
-			}
-
-		;; Fast Travel to the Landing, yes even after loading a fresh instance, this is for consistent reticle placement
-			360Controller.Buttons.Back.SetState(true)
-			PreciseSleep(1500)
-			360Controller.Buttons.Back.SetState(false)
-			PreciseSleep(fasttravel_delay)
-			360Controller.Axes.LX.SetState(0)
-			PreciseSleep(fasttravel_sleep)
-			360Controller.Axes.LX.SetState(50)
-			PreciseSleep(300)
-			360Controller.Axes.LY.SetState(30)			; Z- bumps down the map cursor because its a little high for the LZ node sometimes
-			PreciseSleep(100)							; ↑
-			360Controller.Axes.LY.SetState(50)			; ↑
-			PreciseSleep(200)
-			360Controller.Buttons.A.SetState(true)
-			PreciseSleep(2000)
-			360Controller.Buttons.A.SetState(false)
-			PreciseSleep(run_start_delay)
-
-		;; FORCE CHEST SPAWN SPOT
-
-			;; Walk forward to avoid the shitty rock
-			360Controller.Buttons.LS.SetState(true)
-			PreciseSleep(100)
-			360Controller.Axes.LY.SetState(100)
-			PreciseSleep(500)
-			360Controller.Axes.LY.SetState(50)
-			360Controller.Buttons.LS.SetState(False)
-			PreciseSleep(400)
-			;; Aim Left towards pavillion
-			360Controller.Axes.RX.SetState(20)
-			PreciseSleep(1300)
-			360Controller.Axes.RX.SetState(50)
-			PreciseSleep(200)
-			;; Move forward to the force spawn location
-			360Controller.Axes.LY.SetState(100)
-			360Controller.Buttons.LS.SetState(true)
-			PreciseSleep(100)
-			360Controller.Buttons.LS.SetState(False)
-			PreciseSleep(3000)
-			;; Adjust aim mid run towards the right
-			360Controller.Axes.RX.SetState(80)
-			PreciseSleep(1100)
-			360Controller.Axes.RX.SetState(50)
-			PreciseSleep(2800)
-			360Controller.Axes.LY.SetState(50)
-			PreciseSleep(500)
-			;; Aim towards next running patch
-			360Controller.Axes.RX.SetState(80)
-			PreciseSleep(initial_aim)
-			360Controller.Axes.RX.SetState(50)
-			;; Sleep for chest spawns
-			PreciseSleep(wait_for_chest_spawn)
-			;PreciseSleep(500)
-
-		;; RUN AND LOOT CHEST
-			;; Run forward
-			360Controller.Axes.LY.SetState(100)
-			360Controller.Buttons.LS.SetState(true)
-			PreciseSleep(100)
-			360Controller.Buttons.LS.SetState(False)
-			PreciseSleep(pre_arc_sleep)
-			;; Start arcing towards the left
-			360Controller.Axes.RX.SetState(15)
-			PreciseSleep(arc_sleep)
-			;; Stop arc
-			360Controller.Axes.RX.SetState(50)
-			PreciseSleep(post_arc_sleep)
-			;; Stop running
-			360Controller.Axes.LY.SetState(50)
-			;; Aim Down
-			360Controller.Axes.RY.SetState(5)
-			PreciseSleep(400)
-			360Controller.Axes.RY.SetState(50)
-			PreciseSleep(100)
-			;; Loot Chest
-			360Controller.Buttons.X.SetState(true)
-			PreciseSleep(2000)
-			360Controller.Buttons.X.SetState(false)
-			PreciseSleep(1000)
-
-			ResetCount++
-			Count++
-		}
-	Return
-
-	Beta_Farm:
 		Loop {
 			if(testing_mode && ResetCount == -1){
 				ResetCount = 0
@@ -2646,23 +2527,24 @@ return
 		PreciseSleep(run_start_delay)
 
 	;; FORCE CHEST SPAWN SPOT
-		;; Walk forward to avoid the shitty rock
+		;; Aim towards Pavilion
 		360Controller.Axes.RX.SetState(20)
 		PreciseSleep(1000)
 		360Controller.Axes.RX.SetState(50)
 		PreciseSleep(200)
-		;; Move forward to the force spawn location
+		;; Move forward into the Pavilion
 		360Controller.Buttons.LS.SetState(True)
 		PreciseSleep(100)
 		360Controller.Axes.LY.SetState(100)
-		PreciseSleep(7300)
+		PreciseSleep(pavilion_run_time)
 		360Controller.Axes.LY.SetState(50)
 		360Controller.Buttons.LS.SetState(False)
 		PreciseSleep(200)
 		360Controller.Axes.RX.SetState(80)
-		PreciseSleep(3900)
+		PreciseSleep(initial_aim)
 		360Controller.Axes.RX.SetState(50)
 		PreciseSleep(500)
+		;; Jam into corner of the wall
 		360Controller.Buttons.LS.SetState(True)
 		PreciseSleep(100)
 		360Controller.Axes.LY.SetState(100)
@@ -2670,12 +2552,12 @@ return
 		360Controller.Axes.LY.SetState(50)
 		360Controller.Buttons.LS.SetState(False)
 		PreciseSleep(wait_for_chest_spawn)
-
+		;; Side Step out of Corner
 		360Controller.Axes.LX.SetState(80)
 		PreciseSleep(500)
 		360Controller.Axes.LX.SetState(50)
 		PreciseSleep(100)
-
+		;; Aim adjust towards chest
 		360Controller.Axes.Rx.SetState(80)
 		PreciseSleep(400)
 		360Controller.Axes.Rx.SetState(50)
@@ -2686,28 +2568,30 @@ return
 		360Controller.Buttons.LS.SetState(true)
 		PreciseSleep(100)
 		360Controller.Buttons.LS.SetState(False)
-		PreciseSleep(pre_arc_sleep)
+		PreciseSleep(pre_turn_duration)
 		;; Start arcing towards the left
 		360Controller.Axes.RX.SetState(15)
-		PreciseSleep(1800)
+		PreciseSleep(turn_duration)
 		;; Stop arc
 		360Controller.Axes.RX.SetState(50)
-		PreciseSleep(2800)
+		PreciseSleep(post_turn_duration)
 		;; Stop running
 		360Controller.Axes.LY.SetState(50)
-		;; Aim Down
 
+		;; Aim back towards chest and run into corner
 		360Controller.Axes.RX.SetState(0)
 		PreciseSleep(700)
 		360Controller.Axes.RX.SetState(50)
 		PreciseSleep(50)
+		;; Run into chest
 		360Controller.Buttons.LS.SetState(True)
 		PreciseSleep(100)
 		360Controller.Axes.LY.SetState(100)
-		PreciseSleep(1200)
+		PreciseSleep(run_into_chest_duration)
 		360Controller.Axes.LY.SetState(50)
 		360Controller.Buttons.LS.SetState(False)
 
+		;; Aim at chest and look down
 		360Controller.Axes.RX.SetState(0)
 		PreciseSleep(600)
 		360Controller.Axes.RX.SetState(50)
@@ -2738,19 +2622,7 @@ F4::
 	status = 1
 	ResetCount = -1
 	inOrbit = 0
-	if(beta_mode){
-		MsgBox,4,Exotic Class Farm Script,!!!WARNING!!!`n`nYou have selected Beta Mode for this script. This is experimental and is not guaranteed to work for you. None of the variables here are programmed into the settings.`n`nContinue Anyway?
-		IfMsgBox, Yes
-		{
-			gosub, Beta_Farm
-		}
-		else{
-			gosub, Start_Farm
-		}
-	}
-	else{
-		gosub, Start_Farm
-	}
+	gosub, Start_Farm
 Return
 
 F5::Reload
