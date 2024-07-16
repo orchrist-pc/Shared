@@ -1,5 +1,5 @@
-version := "1.2.0"
-
+version := "1.3.2"
+#Requires AutoHotkey >=1.1.36 <1.2
 #SingleInstance, Force
 SendMode Input
 CoordMode, Mouse, Screen
@@ -12,12 +12,13 @@ pToken := Gdip_Startup()
 argument = %1%
 SetTimer, ScriptClose, 1000
 SetTimer, UpdateOverlay, 1000
-Global gs_logging = False
-Global gs_logfile := a_desktop . "\GunsmithDumpMacro.log"
+FileDelete, %gs_logfile%
 status = 0
-global success := 0
-global attempts := 0
-global testmessage := ""
+
+Global gs_logging = false
+Global gs_logfile := a_desktop . "\GunsmithDumpMacro.log"
+Global gs_debugmode = false
+global debug_msg := ""
 
 global DESTINY_X := 0
 global DESTINY_Y := 0
@@ -28,7 +29,6 @@ find_d2()
 ;Grabs your current D2 Keybinds
 used_keybinds := [
     ,"ui_open_start_menu_alternative"
-    ,"ui_open_director_destinations_tab"
     ,"ui_open_director"
     ,"move_forward"
     ,"toggle_sprint"
@@ -52,16 +52,10 @@ for gs_key, value in gs_keybinds
     }
 }
 
-if(argument == "gunsmith")
+if(argument == "dumpall")
 {
     WinActivate, Destiny 2
-    gosub, gsmithmain
-}
-
-if(argument == "ghost")
-{
-    WinActivate, Destiny 2
-    gosub, ghostmain
+    gosub, main
 }
 
 overlay := new ShinsOverlayClass("ahk_exe destiny2.exe")
@@ -77,6 +71,9 @@ main:
 {
     gosub, gsmithmain
     gosub, ghostmain
+    goto_orbit()
+    if(argument == "dumpall")
+        exitapp
     return
 }
 
@@ -84,21 +81,24 @@ gsmithmain:
 {
     find_d2()
     status = 1
-    testmessage := "Starting Gunsmith Dump"
-    FileAppend, %testmessage%`n, %gs_logfile%
+    debug_msg := "Starting Gunsmith Dump"
+    if(gs_logging)
+        FileAppend, %debug_msg%`n, %gs_logfile%
     if(goto_orbit())
     {
+        send_gear_to_vault()
         goto_tower()
         if(wait_for_spawn(300000))
         {
-            testmessage := "We are in the Tower"
-            FileAppend, %testmessage%`n, %gs_logfile%
+            debug_msg := "We are in the Tower"
+            if(gs_logging)
+                FileAppend, %debug_msg%`n, %gs_logfile%
         }
-        send_gear_to_vault()
         if(goto_gunsmith())
         {
-            testmessage := "Made it to Gunsmith"
-            FileAppend, %testmessage%`n, %gs_logfile%
+            debug_msg := "Made it to Gunsmith"
+            if(gs_logging)
+                FileAppend, %debug_msg%`n, %gs_logfile%
             gunsmithdump()
             PreciseSleep(2000)
             Send, {esc}
@@ -113,21 +113,24 @@ ghostmain:
 {
     find_d2()
     status = 2
-    testmessage := "Starting Gunsmith Dump"
-    FileAppend, %testmessage%`n, %gs_logfile%
+    debug_msg := "Starting Gunsmith Dump"
+    if(gs_logging)
+        FileAppend, %debug_msg%`n, %gs_logfile%
     if(goto_orbit())
     {
+        send_gear_to_vault()
         goto_lostcity()
         if(wait_for_spawn(300000))
         {
-            testmessage := "We are in the Lost City"
-            FileAppend, %testmessage%`n, %gs_logfile%
+            debug_msg := "We are in the Lost City"
+            if(gs_logging)
+                FileAppend, %debug_msg%`n, %gs_logfile%
         }
-        send_gear_to_vault()
         if(goto_ghost())
         {
-            testmessage := "Made it to Ghost"
-            FileAppend, %testmessage%`n, %gs_logfile%
+            debug_msg := "Made it to Ghost"
+            if(gs_logging)
+                FileAppend, %debug_msg%`n, %gs_logfile%
             ghostdump()
             PreciseSleep(2000)
             Send, {esc}
@@ -162,7 +165,6 @@ ghostmain:
 
     ghostdump()
     {
-        claimrankups()
         engrams_are_empty := false
         firstclear := true
         while(!engrams_are_empty) 
@@ -266,7 +268,7 @@ ghostmain:
 
     send_gear_to_vault()
     {
-        Send, % "{" gs_keybinds["ui_open_director_destinations_tab"] "}"
+        Send, % "{" gs_keybinds["ui_open_director"] "}"
         PreciseSleep(2000)
         d2_click(700,100,0)     ; All of this opens vault by
         PreciseSleep(100)       ; going to crucible and selecting control
@@ -282,55 +284,58 @@ ghostmain:
         PreciseSleep(1000)
         d2_click(345,255,0)     ; Select Kinetic Slot
         PreciseSleep(200)       ; ↑
-        d2_click(275,255,0)     ; ↑
+        d2_click(300,294,0)     ; ↑
         PreciseSleep(200)
-        send_to_vault("244|231|64|64", 64, 64)  ; Send all to vault
+        send_to_vault("244|231|64|64", 64, 64,"kinetic.png")  ; Send all to vault
         d2_click(345,337,0)     ; Select Energy Slot
         PreciseSleep(200)       ; ↑
-        d2_click(275,337,0)     ; ↑
+        d2_click(300,376,0)     ; ↑
         PreciseSleep(200)
-        send_to_vault("244|313|64|64", 64, 64)  ; Send all to vault
+        send_to_vault("244|314|64|64", 64, 64,"energy.png")  ; Send all to vault
         d2_click(345,419,0)     ; Select Heavy Slot
         PreciseSleep(200)       ; ↑
-        d2_click(275,419,0)     ; ↑
+        d2_click(300,458,0)     ; ↑
         PreciseSleep(200)
-        send_to_vault("244|395|64|64", 64, 64)  ; Send all to Vault
+        send_to_vault("244|395|64|64", 64, 64,"heavy.png")  ; Send all to Vault
         d2_click(930,180,0)     ; Select Helmet Slot
         PreciseSleep(200)       ; ↑
-        d2_click(1000,180,0)    ; ↑
+        d2_click(973,210,0)     ; ↑
         PreciseSleep(200)
-        send_to_vault("973|149|64|64", 64, 64)  ; Send all to Vault
-        d2_click(930,262,0)     ; Select Helmet Slot
+        send_to_vault("973|149|64|64", 64, 64,"helm.png")  ; Send all to Vault
+        d2_click(930,180,0)     ; Select Helmet Slot again to clear cursor
         PreciseSleep(200)       ; ↑
-        d2_click(1000,262,0)    ; ↑
-        PreciseSleep(200)
-        send_to_vault("973|232|64|64", 64, 64)  ; Send all to Vault
-        d2_click(930,344,0)     ; Select Helmet Slot
+        d2_click(930,262,0)     ; Select Arm Slot
         PreciseSleep(200)       ; ↑
-        d2_click(1000,344,0)    ; ↑
+        d2_click(973,292,0)     ; ↑
         PreciseSleep(200)
-        send_to_vault("973|315|64|64", 64, 64)  ; Send all to Vault
-        d2_click(930,426,0)     ; Select Helmet Slot
+        send_to_vault("973|232|64|64", 64, 64,"arms.png")  ; Send all to Vault
+        d2_click(930,262,0)     ; Select Arm Slot again to clear cursor
         PreciseSleep(200)       ; ↑
-        d2_click(1000,426,0)    ; ↑
-        PreciseSleep(200)
-        send_to_vault("973|398|64|64", 64, 64)  ; Send all to Vault
-        d2_click(930,508,0)     ; Select Helmet Slot
+        d2_click(930,344,0)     ; Select Chest Slot
         PreciseSleep(200)       ; ↑
-        d2_click(1000,508,0)    ; ↑
+        d2_click(973,374,0)     ; ↑
         PreciseSleep(200)
-        send_to_vault("973|481|64|64", 64, 64)  ; Send all to Vault
+        send_to_vault("973|315|64|64", 64, 64,"chest.png")  ; Send all to Vault
+        d2_click(930,344,0)     ; Select Chest Slot again to clear cursor
+        PreciseSleep(200)       ; ↑
+        d2_click(930,426,0)     ; Select Leg Slot
+        PreciseSleep(200)       ; ↑
+        d2_click(973,457,0)     ; ↑
+        PreciseSleep(200)
+        send_to_vault("973|398|64|64", 64, 64,"legs.png")  ; Send all to Vault
+        d2_click(930,426,0)     ; Select Leg Slot again to clear cursor
+        PreciseSleep(200)       ; ↑
+        d2_click(930,508,0)     ; Select Class Item Slot
+        PreciseSleep(200)       ; ↑
+        d2_click(973,538,0)     ; ↑
+        PreciseSleep(200)
+        send_to_vault("973|481|64|64", 64, 64,"class.png")  ; Send all to Vault
         PreciseSleep(1000)      ; Closes out of the Vault Menues
-        send, {ESC}             ; ↑
-        PreciseSleep(1000)      ; ↑
-        send, {ESC}             ; ↑
-        PreciseSleep(1000)      ; ↑
-        send, {ESC}             ; ↑
-        PreciseSleep(1000)      ; ↑
-        send, {ESC}             ; ↑
-        PreciseSleep(1000)      ; ↑
-        send, {ESC}             ; ↑
-        PreciseSleep(1000)      ; ↑
+        loop, 5                 ; ↑
+        {                       ; ↑  
+            send, {ESC}         ; ↑
+            PreciseSleep(1000)  ; ↑
+        }
         return
     }
 
@@ -338,7 +343,7 @@ ghostmain:
     {
         ;; First reward
         d2_click(780,320,0)
-        PreciseSleep(200)
+        PreciseSleep(1000)
         d2_click(780,320)
         PreciseSleep(2000)
         ;; Second reward
@@ -376,10 +381,11 @@ ghostmain:
     ;; TOWER
         goto_tower()
         {
-            testmessage := "Going to Tower"
-            FileAppend, %testmessage%`n, %gs_logfile%
+            debug_msg := "Going to Tower"
+            if(gs_logging)
+                FileAppend, %debug_msg%`n, %gs_logfile%
             PreciseSleep(200)
-            Send, % "{" gs_keybinds["ui_open_director_destinations_tab"] "}"
+            Send, % "{" gs_keybinds["ui_open_director"] "}"
             PreciseSleep(2000)
             d2_click(640,550,0)
             PreciseSleep(50)
@@ -412,8 +418,9 @@ ghostmain:
         goto_gunsmith()
         {
             count := 0
-            testmessage := "Going to Gunsmith"
-            FileAppend, %testmessage%`n, %gs_logfile%
+            debug_msg := "Going to Gunsmith"
+            if(gs_logging)
+                FileAppend, %debug_msg%`n, %gs_logfile%
             loop, 3
             {
                 Send, % "{" gs_keybinds["toggle_sprint"] " Down}"
@@ -454,14 +461,16 @@ ghostmain:
                     return true
                 else
                 {
-                    testmessage := "Did not make it to the gunsmith, trying again... " . count . "/3"
-                    FileAppend, %testmessage%`n, %gs_logfile%
+                    debug_msg := "Did not make it to the gunsmith, trying again... " . count . "/3"
+                    if(gs_logging)
+                        FileAppend, %debug_msg%`n, %gs_logfile%
                     ft_to_courtyard()
                     wait_for_spawn(300000)
                 }
             }
-            testmessage := "Failed to make it to the gunsmith."
-            FileAppend, %testmessage%`n, %gs_logfile%
+            debug_msg := "Failed to make it to the gunsmith."
+            if(gs_logging)
+                FileAppend, %debug_msg%`n, %gs_logfile%
             PreciseSleep(2000)
             return false
         }
@@ -469,11 +478,12 @@ ghostmain:
     ;; PALE HEART
         goto_lostcity() ; loads into the landing from orbit
         {
-            testmessage := "Going to Lost City"
-            FileAppend, %testmessage%`n, %gs_logfile%
+            debug_msg := "Going to Lost City"
+            if(gs_logging)
+                FileAppend, %debug_msg%`n, %gs_logfile%
             loop, 5
             {
-                Send, % "{" gs_keybinds["ui_open_director_destinations_tab"] "}"
+                Send, % "{" gs_keybinds["ui_open_director"] "}"
                 Sleep, 2500
                 d2_click(640, 360, 0)
                 Sleep, 500
@@ -511,8 +521,9 @@ ghostmain:
         goto_ghost()
         {
             count := 0
-            testmessage := "Going to Ghost"
-            FileAppend, %testmessage%`n, %gs_logfile%
+            debug_msg := "Going to Ghost"
+            if(gs_logging)
+                FileAppend, %debug_msg%`n, %gs_logfile%
             loop, 3
             {
                 Send, {LButton down}
@@ -531,8 +542,9 @@ ghostmain:
                     return true
                 else
                 {
-                    testmessage := "Did not make it to Ghost, trying again... " . count . "/3"
-                    FileAppend, %testmessage%`n, %gs_logfile%
+                    debug_msg := "Did not make it to Ghost, trying again... " . count . "/3"
+                    if(gs_logging)
+                        FileAppend, %debug_msg%`n, %gs_logfile%
                     ft_to_courtyard()
                     wait_for_spawn(300000)
                 }
@@ -542,12 +554,14 @@ ghostmain:
     ;; Orbit
         goto_orbit()
         {
-            testmessage := "Checking if in orbit"
-            FileAppend, %testmessage%`n, %gs_logfile%
+            debug_msg := "Checking if in orbit"
+            if(gs_logging)
+                FileAppend, %debug_msg%`n, %gs_logfile%
             if(wait_for_color("1142|692|20|20", 20, 20, 0x444444, 1000))  ;; check if already in orbit
                 return true
-            testmessage := "Going to Orbit"
-            FileAppend, %testmessage%`n, %gs_logfile%
+            debug_msg := "Going to Orbit"
+            if(gs_logging)
+                FileAppend, %debug_msg%`n, %gs_logfile%
             Send, % "{" gs_keybinds["ui_gamepad_button_back"] "}"
             PreciseSleep(1500)
             Send, % "{" gs_keybinds["ui_abort_activity"] " Down}"
@@ -555,14 +569,16 @@ ghostmain:
             Send, % "{" gs_keybinds["ui_abort_activity"] " Up}"
             if(wait_for_color("1142|692|20|20", 20, 20, 0x444444, 300000))
             {
-                testmessage := "We are in Orbit"
-                FileAppend, %testmessage%`n, %gs_logfile%
+                debug_msg := "We are in Orbit"
+                if(gs_logging)
+                    FileAppend, %debug_msg%`n, %gs_logfile%
                 return true
             }
             else
             {
-                testmessage := "Failed Orbit Check"
-                FileAppend, %testmessage%`n, %gs_logfile%
+                debug_msg := "Failed Orbit Check"
+                if(gs_logging)
+                    FileAppend, %debug_msg%`n, %gs_logfile%
                 return false
             }
         }
@@ -615,7 +631,7 @@ ghostmain:
     {
         loop,{
             PreciseSleep(200)
-            purp_surch := exact_color_check(coords, w, h, base_color)
+            purp_surch := exact_color_check(coords, w, h, base_color,"dismantle.png")
             if(purp_surch > .02){
                 Send, {f DOWN}
                 PreciseSleep(1500)
@@ -629,22 +645,34 @@ ghostmain:
         return
     }
 
-    send_to_vault(coords, w, h)
+    send_to_vault(coords, w, h,filename:="vaulting.png")
     {
         loop,{
-            PreciseSleep(200)
-            purp_surch := exact_color_check(coords, w, h, 0x8F769C)
-            purp_surch2 := exact_color_check(coords, w, h, 0x8A7295)
-            exotic_surch := exact_color_check(coords, w, h, 0xE1CD79)
-            if(purp_surch > .01 || exotic_surch > .01 || purp_surch2 > .01){
-                Send, {LButton down}
-                PreciseSleep(100)
-                Send, {LButton up}
-                PreciseSleep(1000)
+            PreciseSleep(500)
+            colors := [0xFFFFFF, 0xDC684D]
+            x := colors.MaxIndex()
+            x := x * 4
+            loop, %x%
+            {
+                loop, 5
+                {
+                    color_surch := exact_color_check(coords, w, h, colors[A_Index],filename)
+                    if(color_surch > .01){
+                        Click
+                        PreciseSleep(50)
+                        Click
+                        PreciseSleep(1000)
+                        Click
+                        PreciseSleep(50)
+                        Click
+                        continue
+                    }
+                }
+                if(color_surch > .01)
+                    continue
             }
-            else{
+            if(color_surch < .01)
                 return
-            }
         }
         return
     }
@@ -669,7 +697,7 @@ ghostmain:
         start_time := A_TickCount
         loop,
         {
-            color_surch := exact_color_check(coords,w,h,color)
+            color_surch := exact_color_check(coords,w,h,color,"waitforcolor.png")
             if (color_surch > .15)
                 return true
             PreciseSleep(10)
@@ -690,7 +718,8 @@ ghostmain:
         coords := x "|" y "|" w "|" h
         pBitmap := Gdip_BitmapFromScreen(coords)
         ; save bitmap 
-        ; Gdip_SaveBitmapToFile(pBitmap, A_ScriptDir . "\" filename)
+        if(gs_debugmode)
+            Gdip_SaveBitmapToFile(pBitmap, A_ScriptDir . "\" filename)
         x := 0
         y := 0
         white := 0
@@ -727,11 +756,11 @@ ghostmain:
             case 0:
                 overlay.drawText("| F4 Dump all | F10 Gunsmith Dumper | F11 Pale Heart Ghost Dumper |`n| F9 Stop and Reload | F7 Exit | Thrallway.com |", 10, 650, 24, 0xFFFFFFFF, "Courier", "olFF000000")
             case 1:
-                overlay.drawText("| Dumping Gunsmith Engrams | " . testmessage . "`n| F9 Stop and Reload | F7 Exit | Thrallway.com |", 10, 650, 24, 0xFFFFFFFF, "Courier", "olFF000000")
+                overlay.drawText("| Dumping Gunsmith Engrams | " . debug_msg . "`n| F9 Stop and Reload | F7 Exit | Thrallway.com |", 10, 650, 24, 0xFFFFFFFF, "Courier", "olFF000000")
             case 2:
-                overlay.drawText("| Dumping Pale Heart Engrams | " . testmessage . "`n| F9 Stop and Reload | F7 Exit | Thrallway.com |", 10, 650, 24, 0xFFFFFFFF, "Courier", "olFF000000")
+                overlay.drawText("| Dumping Pale Heart Engrams | " . debug_msg . "`n| F9 Stop and Reload | F7 Exit | Thrallway.com |", 10, 650, 24, 0xFFFFFFFF, "Courier", "olFF000000")
             case 3:
-                overlay.drawText("| Attempts: " . success . "/" . attempts . " | " . testmessage . "`n| F9 Stop and Reload | F7 Exit | Thrallway.com |", 10, 650, 24, 0xFFFFFFFF, "Courier", "olFF000000")
+                overlay.drawText("| Attempts: " . success . "/" . attempts . " | " . debug_msg . "`n| F9 Stop and Reload | F7 Exit | Thrallway.com |", 10, 650, 24, 0xFFFFFFFF, "Courier", "olFF000000")
         }
         overlay.endDraw()
     }
