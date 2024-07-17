@@ -2497,6 +2497,12 @@ return
 			360Controller.Axes.LY.SetState(50)			; ↑
 			PreciseSleep(100)							; ↑
 			360Controller.Axes.LY.SetState(50)			; ↑
+			PreciseSleep(100)							; ↑
+			360Controller.Axes.LY.SetState(50)			; ↑
+			PreciseSleep(100)							; ↑
+			360Controller.Axes.LY.SetState(50)			; ↑
+			PreciseSleep(100)							; ↑
+			360Controller.Axes.LY.SetState(50)			; ↑
 			PreciseSleep(600)
 			360Controller.Buttons.A.SetState(true)
 			PreciseSleep(100)
