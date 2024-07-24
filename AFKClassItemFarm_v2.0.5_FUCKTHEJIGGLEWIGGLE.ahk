@@ -2490,17 +2490,6 @@ return
 			PreciseSleep(100)
 			360Controller.Buttons.Back.SetState(false)
 			PreciseSleep(fasttravel_delay)
-			360Controller.Axes.LY.SetState(70)			; Z- Bounce the cursor because Bungo be Bungelin
-			PreciseSleep(100)							; ↑
-			360Controller.Axes.LY.SetState(30)			; ↑
-			PreciseSleep(100)							; ↑
-			360Controller.Axes.LY.SetState(50)			; ↑
-			PreciseSleep(100)							; ↑
-			360Controller.Axes.LY.SetState(50)			; ↑
-			PreciseSleep(100)							; ↑
-			360Controller.Axes.LY.SetState(50)			; ↑
-			PreciseSleep(100)							; ↑
-			360Controller.Axes.LY.SetState(50)			; ↑
 			PreciseSleep(100)							; ↑
 			360Controller.Axes.LY.SetState(50)			; ↑
 			PreciseSleep(600)
@@ -2513,14 +2502,6 @@ return
 			360Controller.Axes.LX.SetState(50)
 			PreciseSleep(500)
 			360Controller.Axes.LY.SetState(30)			; Z- bumps down the map cursor because its a little high for the LZ node sometimes
-			PreciseSleep(100)							; ↑
-			360Controller.Axes.LY.SetState(50)			; ↑
-			PreciseSleep(100)							; ↑
-			360Controller.Axes.LY.SetState(50)			; ↑
-			PreciseSleep(100)							; ↑
-			360Controller.Axes.LY.SetState(50)			; ↑
-			PreciseSleep(100)							; ↑
-			360Controller.Axes.LY.SetState(50)			; ↑
 			PreciseSleep(100)							; ↑
 			360Controller.Axes.LY.SetState(50)			; ↑
 			PreciseSleep(100)							; ↑

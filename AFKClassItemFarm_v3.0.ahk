@@ -2232,7 +2232,7 @@ return
 
 ;; Close script if D2 not running
 	ScriptClose:
-		IfWinNotExist, Destiny 2
+		IfWinNotExist, ahk_exe destiny2.exe
 			ExitApp
 		return
 
@@ -2497,12 +2497,6 @@ return
 			360Controller.Axes.LY.SetState(50)			; ↑
 			PreciseSleep(100)							; ↑
 			360Controller.Axes.LY.SetState(50)			; ↑
-			PreciseSleep(100)							; ↑
-			360Controller.Axes.LY.SetState(50)			; ↑
-			PreciseSleep(100)							; ↑
-			360Controller.Axes.LY.SetState(50)			; ↑
-			PreciseSleep(100)							; ↑
-			360Controller.Axes.LY.SetState(50)			; ↑
 			PreciseSleep(600)
 			360Controller.Buttons.A.SetState(true)
 			PreciseSleep(100)
@@ -2513,14 +2507,6 @@ return
 			360Controller.Axes.LX.SetState(50)
 			PreciseSleep(500)
 			360Controller.Axes.LY.SetState(30)			; Z- bumps down the map cursor because its a little high for the LZ node sometimes
-			PreciseSleep(100)							; ↑
-			360Controller.Axes.LY.SetState(50)			; ↑
-			PreciseSleep(100)							; ↑
-			360Controller.Axes.LY.SetState(50)			; ↑
-			PreciseSleep(100)							; ↑
-			360Controller.Axes.LY.SetState(50)			; ↑
-			PreciseSleep(100)							; ↑
-			360Controller.Axes.LY.SetState(50)			; ↑
 			PreciseSleep(100)							; ↑
 			360Controller.Axes.LY.SetState(50)			; ↑
 			PreciseSleep(100)							; ↑
@@ -2541,7 +2527,7 @@ return
 			360Controller.Buttons.A.SetState(true)
 			PreciseSleep(100)
 			360Controller.Buttons.A.SetState(false)
-			PreciseSleep(from_orbit_delay)
+		PreciseSleep(from_orbit_delay)
 			inOrbit = 0								; Resets the inOrbit
 		}
 
